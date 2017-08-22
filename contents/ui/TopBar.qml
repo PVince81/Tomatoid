@@ -20,6 +20,7 @@
 import QtQuick 2.0
 import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.plasma.components 2.0 as PlasmaComponents
+import QtQuick.Layouts 1.1
 
 import "../code/logic.js" as Logic
 
@@ -57,7 +58,7 @@ PlasmaComponents.ToolBarLayout {
 		}
 	}
 
-	Row {
+	RowLayout {
 		id: addTaskRow
 		visible: !tomatoid.inPomodoro && !tomatoid.inBreak
 		anchors.left: topBar.left

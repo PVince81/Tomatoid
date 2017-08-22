@@ -71,7 +71,8 @@ Item {
 	property Item currentView: toolBarLayout.currentTab
 
 	Component.onCompleted: {
-		plasmoid.addEventListener("ConfigChanged", configChanged)
+		// FIXME
+		//plasmoid.addEventListener("ConfigChanged", configChanged)
 
 		Logic.parseConfig("completeTasks", completeTasks)
 		Logic.parseConfig("incompleteTasks", incompleteTasks)

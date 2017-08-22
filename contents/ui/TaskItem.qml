@@ -95,7 +95,7 @@ import org.kde.plasma.core 2.0 as PlasmaCore
 
 			Text {
 				text: {
-					t = "( " + donePomodoros
+					var t = "( " + donePomodoros
 					if(estimatedPomodoros > 0)
 						t += "/" + estimatedPomodoros
 					t += " ) " + name

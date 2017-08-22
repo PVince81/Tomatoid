@@ -16,6 +16,10 @@
  *   Free Software Foundation, Inc.,
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+Qt.include('../code/config.js');
+//.import "../code/config.js" as Config
+
 var sep = "~";
 var sep2 = "%";
 var test = false;
@@ -34,7 +38,7 @@ var testLongBreakDuration = 4;
 // }
 
 function parseConfig(configName, model) {
-	var tasksSourcesString = plasmoid.readConfig(configName).toString();
+	var tasksSourcesString = Config.readConfig(configName).toString();
 	var tasks = new Array();
 	if (tasksSourcesString.length > 0)
 		tasks = tasksSourcesString.split(sep2);
@@ -79,9 +83,9 @@ function addTask(taskName, donePomos, estimatedPomos, model, configName) {
 	taskName = taskName.replace(new RegExp(sep,"gm"), "");
 	taskName = taskName.replace(new RegExp(sep2,"gm"), "");
 
-	tasks += id + sep + taskName + sep + donePomos + sep + estimatedPomos
+	tasks += id + sep + taskName + sep + donePomos + sep + estimatedPomos;
 
-	plasmoid.writeConfig(configName, tasks);
+	Config.writeConfig(configName, tasks);
 	model.append({"taskId":id, "taskName":taskName, "donePomos":donePomos, "estimatedPomos":estimatedPomos});
 }
 
@@ -106,7 +110,7 @@ function removeTask(id, model, configName) {
 
 	console.log("tasks: " + tasks);
 	console.log("Task to remove: " + removedTask);
-	plasmoid.writeConfig(configName, tasks);
+	Config.writeConfig(configName, tasks);
 	model.remove(index);
 
 	return removedTask;
@@ -135,7 +139,7 @@ function renameTask(id, taskName) {
 	}
 
 	console.log(id + ": " + tasks);
-	plasmoid.writeConfig("incompleteTasks", tasks);
+	Config.writeConfig("incompleteTasks", tasks);
 	model.setProperty(index, "taskName", taskName);
 }
 
@@ -237,7 +241,7 @@ function completePomodoro(taskId) {
 	completedPomodoros += 1
 
 	console.log(tasks);
-	plasmoid.writeConfig("incompleteTasks", tasks);
+	Config.writeConfig("incompleteTasks", tasks);
 	incompleteTasks.setProperty(index, "donePomos", incompleteTasks.get(index).donePomos + 1)
 }
 

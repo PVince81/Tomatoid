@@ -21,6 +21,7 @@ import QtQuick 2.0
 import QtMultimedia 5.8
 import org.kde.plasma.components 2.0 as PlasmaComponents
 import org.kde.plasma.core 2.0 as PlasmaCore
+import QtQuick.Layouts 1.1
 
 import "../code/logic.js" as Logic
 
@@ -31,8 +32,8 @@ Item {
 
 	property string appName: "Tomatoid"
 
-	property int minimumWidth: 280
-	property int minimumHeight: 320
+	Layout.minimumWidth: 400
+	Layout.minimumHeight: 400 
 
 	property bool playNotificationSound: true
 	property bool playTickingSound: false

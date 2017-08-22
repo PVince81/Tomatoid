@@ -19,6 +19,7 @@
 
 import QtQuick 2.0
 import org.kde.plasma.core 2.0 as PlasmaCore
+import QtQuick.Layouts 1.1
 
  import "../code/logic.js" as Logic
 
@@ -51,8 +52,6 @@ import org.kde.plasma.core 2.0 as PlasmaCore
 		id: mouseArea
 		anchors.fill: parent
 		hoverEnabled: true
-		property int minimumWidth
-		property int minimumHeight
 		onClicked: plasmoid.togglePopup()
 
 		// FIXME

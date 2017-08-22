@@ -17,146 +17,80 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-Qt.include('../code/config.js');
-//.import "../code/config.js" as Config
+/* global Config */
+/* global Qt */
+/* global incompleteTasks */
+/* global completeTasks */
 
-var sep = "~";
-var sep2 = "%";
+Qt.include('../code/database.js');
+
 var test = false;
 var testPomodoroDuration = 3;
 var testBreakDuration = 1;
 var testLongBreakDuration = 4;
 
-// function newTaskDB(taskName) {
-//     var db = openDataBaseSync("tomatoid_db", "1.0")
-//     db.transaction(
-//         function(tx) {
-//             tx.executeSql('CREATE TABLE IF NOT EXISTS tasks(task_name TEXT, complete_pomo INT, estimate_pomo INT)');
-//             tx.executeSql('INSERT INTO tasks VALUES(?, ?, ?)', [ taskName, 0, 0 ]);
-//         }
-//     )
-// }
-
-function parseConfig(configName, model) {
-	var tasksSourcesString = Config.readConfig(configName).toString();
-	var tasks = new Array();
-	if (tasksSourcesString.length > 0)
-		tasks = tasksSourcesString.split(sep2);
-
-	for(var i = 0; i < tasks.length; i++) {
-		var task = tasks[i].split(sep);
-		model.append({"taskId":task[0], "taskName":task[1], "donePomos":parseInt(task[2]), "estimatedPomos":parseInt(task[3])});
-	}
+function loadData() {
+	Database.list(Database.STATE_INCOMPLETE, function(tasks) {
+		for(var i = 0; i < tasks.length; i++) {
+			var task = tasks[i];
+			delete(task.state);
+			incompleteTasks.append(task);
+		}
+	});
+	Database.list(Database.STATE_COMPLETE, function(tasks) {
+		for(var i = 0; i < tasks.length; i++) {
+			var task = tasks[i];
+			delete(task.state);
+			completeTasks.append(task);
+		}
+	});
 }
 
 function newTask(taskName, estimatedPomos) {
-	addTask(taskName, 0, estimatedPomos, incompleteTasks, "incompleteTasks");
+	var task = {
+		"taskName": taskName,
+		"donePomos": 0,
+		"estimatedPomos": estimatedPomos
+	};
+
+	Database.addTask(task.taskName, task.estimatedPomos, task.donePomos, Database.STATE_INCOMPLETE, function(id) {
+		task.taskId = id;
+		incompleteTasks.append(task);
+	});
 }
 
-function insertIncompleteTask(taskName, donePomos, estimatedPomos) {
-	addTask(taskName, donePomos, estimatedPomos, incompleteTasks, "incompleteTasks");
-}
-function insertCompleteTask(taskName, donePomos, estimatedPomos) {
-	addTask(taskName, donePomos, estimatedPomos, completeTasks, "completeTasks");
-}
-
-function removeIncompleteTask(id) {
-	return removeTask(id, incompleteTasks, "incompleteTasks");
-}
-function removeCompleteTask(id) {
-	return removeTask(id, completeTasks, "completeTasks");
+function removeTask(id, model) {
+	var index = findTaskIndex(model, id);
+	Database.removeTask(id, function() {
+		model.remove(index);
+	});
 }
 
-
-function addTask(taskName, donePomos, estimatedPomos, model, configName) {
-	var id = randomString(10);
-	var tasks = "";
-
-	if(model.count > 0) {
-		for(var i = 0; i < model.count; i++) {
-			tasks += model.get(i).taskId + sep + model.get(i).taskName + sep +
-			model.get(i).donePomos + sep + model.get(i).estimatedPomos + sep2
-		}
-	}
-
-	//make sure no one is going to fuck with the kcfg separation.
-	taskName = taskName.replace(new RegExp(sep,"gm"), "");
-	taskName = taskName.replace(new RegExp(sep2,"gm"), "");
-
-	tasks += id + sep + taskName + sep + donePomos + sep + estimatedPomos;
-
-	Config.writeConfig(configName, tasks);
-	model.append({"taskId":id, "taskName":taskName, "donePomos":donePomos, "estimatedPomos":estimatedPomos});
-}
-
-function removeTask(id, model, configName) {
-	var removedTask = "";
-	var tasks = "";
-	var index = 0;
-
-	console.log("ID of task to remove: " + id);
-
+function findTaskIndex(model, id) {
 	for(var i = 0; i < model.count; i++) {
 		var task = model.get(i);
-		if(id != task.taskId) {
-			if(tasks != "") tasks += sep2;
-
-			tasks += task.taskId + sep + task.taskName + sep + task.donePomos + sep + task.estimatedPomos;
-		} else {
-			removedTask = task.taskName + sep + task.donePomos + sep + task.estimatedPomos;
-			index = i;
+		if(id === task.taskId) {
+			return i;
 		}
 	}
-
-	console.log("tasks: " + tasks);
-	console.log("Task to remove: " + removedTask);
-	Config.writeConfig(configName, tasks);
-	model.remove(index);
-
-	return removedTask;
+	return null;
 }
-
 
 function renameTask(id, taskName) {
-	var index = 0
-	var tasks = "";
-	var model = incompleteTasks;
+	var index = findTaskIndex(incompleteTasks, id);
 
-	for(var i = 0; i < model.count; i++) {
-		var task = model.get(i);
-		if(tasks != "") tasks += sep2;
-
-		tasks += task.taskId + sep;
-
-		if(id == task.taskId) {
-			index = i;
-			tasks += taskName; //if id matches, insert changed name
-		} else {
-			tasks += task.taskName;
-		}
-
-		tasks += sep + task.donePomos + sep + task.estimatedPomos;
-	}
-
-	console.log(id + ": " + tasks);
-	Config.writeConfig("incompleteTasks", tasks);
-	model.setProperty(index, "taskName", taskName);
+	Database.renameTask(id, taskName, function() {
+		model.setProperty(index, "taskName", taskName);
+	});
 }
 
 
 function doTask(id) {
-	var removedTask = removeIncompleteTask(id);
-	var split = removedTask.split(sep);
-
-	insertCompleteTask(split[0], split[1], split[2]);
+	Database.changeState(id, Database.STATE_COMPLETE);
 }
 
-
 function undoTask(id) {
-	var removedTask = removeCompleteTask(id);
-	var split = removedTask.split(sep);
-
-	insertIncompleteTask(split[0], split[1], split[2]);
+	Database.changeState(id, Database.STATE_INCOMPLETE);
 }
 
 function runCommand(command) {
@@ -174,7 +108,7 @@ function runCommand(command) {
 function startTask(id, taskName) {
 	runCommand(tomatoid.actionStartTimer);
 
-	console.log(plasmoid.popupIcon)
+	console.log(plasmoid.popupIcon);
 	timer.taskId = id;
 	timer.taskName = taskName;
 	timer.totalSeconds = test ? testPomodoroDuration : pomodoroLength * 60;
@@ -220,29 +154,16 @@ function stop() {
 
 
 function completePomodoro(taskId) {
-	var tasks = "";
-	var index = 0;
+	var index = findTaskIndex(incompleteTasks, taskId);
 
-	for(var i = 0; i < incompleteTasks.count; i++) {
-		var task = incompleteTasks.get(i);
-		var donePomos = task.donePomos;
+	var estimate = incompleteTasks.get(index).estimatedPomos;
+	var donePomos = incompleteTasks.get(index).donePomos + 1;
 
-		if(tasks != "") tasks += sep2;
+	completedPomodoros += 1;
 
-		if(taskId == task.taskId) {
-			donePomos += 1;
-			index = i;
-		}
-
-		tasks += task.taskId + sep +
-		task.taskName + sep + donePomos + sep + task.estimatedPomos;
-	}
-
-	completedPomodoros += 1
-
-	console.log(tasks);
-	Config.writeConfig("incompleteTasks", tasks);
-	incompleteTasks.setProperty(index, "donePomos", incompleteTasks.get(index).donePomos + 1)
+	Database.update(taskId, estimate, donePomos, function() {
+		incompleteTasks.setProperty(index, "donePomos", donePomos)
+	});
 }
 
 

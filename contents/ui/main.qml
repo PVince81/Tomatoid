@@ -22,6 +22,7 @@ import QtMultimedia 5.8
 import org.kde.plasma.components 2.0 as PlasmaComponents
 import org.kde.plasma.core 2.0 as PlasmaCore
 import QtQuick.Layouts 1.1
+import QtQuick.LocalStorage 2.0
 
 import "../code/logic.js" as Logic
 
@@ -73,9 +74,7 @@ Item {
 	Component.onCompleted: {
 		// FIXME
 		//plasmoid.addEventListener("ConfigChanged", configChanged)
-
-		Logic.parseConfig("completeTasks", completeTasks)
-		Logic.parseConfig("incompleteTasks", incompleteTasks)
+		Logic.loadData();
 
 		plasmoid.setBackgroundHints(0);
 		tomatoid.forceActiveFocus();
@@ -174,7 +173,7 @@ Item {
 			done: false
 
 			onDoTask: Logic.doTask(taskIdentity)
-			onRemoveTask: Logic.removeIncompleteTask(taskIdentity)
+			onRemoveTask: Logic.removeTask(taskIdentity)
 			onStartTask: Logic.startTask(taskIdentity, taskName)
 			onRenameTask: Logic.renameTask(taskIdentity, newName)
 		}
@@ -186,7 +185,7 @@ Item {
 			done: true
 
 			onDoTask: Logic.undoTask(taskIdentity)
-			onRemoveTask: Logic.removeCompleteTask(taskIdentity)
+			onRemoveTask: Logic.removeTask(taskIdentity)
 		}
 	}
 

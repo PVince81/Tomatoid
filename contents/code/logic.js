@@ -81,7 +81,6 @@ function addTask(taskName, donePomos, estimatedPomos, model, configName) {
 
 	tasks += id + sep + taskName + sep + donePomos + sep + estimatedPomos
 
-	console.log("tasks: " + tasks);
 	plasmoid.writeConfig(configName, tasks);
 	model.append({"taskId":id, "taskName":taskName, "donePomos":donePomos, "estimatedPomos":estimatedPomos});
 }

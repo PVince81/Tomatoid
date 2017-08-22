@@ -17,12 +17,12 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import QtQuick 1.1
-import QtMultimediaKit 1.1
-import org.kde.plasma.core 0.1 as PlasmaCore
-import org.kde.plasma.components 0.1 as PlasmaComponents
+import QtQuick 2.0
+import QtMultimedia 5.8
+import org.kde.plasma.components 2.0 as PlasmaComponents
+import org.kde.plasma.core 2.0 as PlasmaCore
 
-import "plasmapackage:/code/logic.js" as Logic
+import "../code/logic.js" as Logic
 
 Item {
 	id: tomatoid
@@ -103,7 +103,6 @@ Item {
                 }
 	}
 
-
 	property Component compactRepresentation: Component {
 		TomatoidIcon {
 			id: iconComponent
@@ -139,14 +138,12 @@ Item {
 		}
 	}
 
-
 	PlasmaCore.FrameSvgItem {
 		id: taskFrame
 		anchors.fill: toolBarLayout
 		imagePath: "widgets/frame"
 		prefix: "sunken"
 	}
-
 
 	PlasmaComponents.TabGroup {
 		id: toolBarLayout
@@ -235,7 +232,6 @@ Item {
 			}
 		}
 	}
-
 
 	SoundEffect {
 		id: notificationSound

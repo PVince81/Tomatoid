@@ -263,8 +263,10 @@ Item {
 		onTimeout: {
 			if(playNotificationSound)
 				notificationSound.play();
-			if(popupNotification)
-				plasmoid.showPopup(5000)
+			if(popupNotification) {
+				// FIXME, use MessageDialog?
+				//plasmoid.showPopup(5000)
+			}
 
 			if(inPomodoro) {
 				console.log(taskId)

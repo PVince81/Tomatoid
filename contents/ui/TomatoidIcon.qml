@@ -38,8 +38,8 @@ import QtQuick.Layouts 1.1
 
 
 	function configChanged() {
-		showTimer = plasmoid.readConfig("showIconTimer");
-		iconPrefix = plasmoid.readConfig("flatIconTheme") == true ? "" : "simple-";
+		showTimer = plasmoid.configuration.showIconTimer;
+		iconPrefix = plasmoid.configuration.flatIconTheme == true ? "" : "simple-";
 	}
 
 

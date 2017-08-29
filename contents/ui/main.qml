@@ -82,26 +82,26 @@ Item {
 
 
 	function configChanged() {
-		playNotificationSound 	        = plasmoid.readConfig("playNotificationSound");
-		tickingVolume 			= plasmoid.readConfig("tickingVolume");
-		playTickingSound 		= plasmoid.readConfig("playTickingSound");
-                playTickingSoundOnBreaks        = plasmoid.readConfig("playTickingSoundOnBreaks");
-		continuousMode 			= plasmoid.readConfig("continuousMode");
-                completeContinuousMode          = plasmoid.readConfig("completeContinuousMode");
-		pomodoroLength 			= plasmoid.readConfig("pomodoroLength");
-		shortBreakLength 		= plasmoid.readConfig("shortBreakLength");
-		longBreakLength 		= plasmoid.readConfig("longBreakLength");
-		pomodorosPerLongBreak 	        = plasmoid.readConfig("pomodorosPerLongBreak");
-		popupNotification 		= plasmoid.readConfig("popupNotification");
-		kdeNotification 		= plasmoid.readConfig("kdeNotification");
-		noNotification 			= plasmoid.readConfig("noNotification");
-		actionStartTimer 		= plasmoid.readConfig("actionStartTimer");
-		actionStartBreak 		= plasmoid.readConfig("actionStartBreak");
-		actionEndBreak 			= plasmoid.readConfig("actionEndBreak");
-		actionEndCycle 			= plasmoid.readConfig("actionEndCycle");
+		playNotificationSound = plasmoid.configuration.playNotificationSound;
+		tickingVolume = plasmoid.configuration.tickingVolume;
+		playTickingSound = plasmoid.configuration.playTickingSound;
+		playTickingSoundOnBreaks = plasmoid.configuration.playTickingSoundOnBreaks;
+		continuousMode = plasmoid.configuration.continuousMode;
+		completeContinuousMode = plasmoid.configuration.completeContinuousMode;
+		pomodoroLength = plasmoid.configuration.pomodoroLength;
+		shortBreakLength = plasmoid.configuration.shortBreakLength;
+		longBreakLength = plasmoid.configuration.longBreakLength;
+		pomodorosPerLongBreak = plasmoid.configuration.pomodorosPerLongBreak;
+		popupNotification = plasmoid.configuration.popupNotification;
+		kdeNotification = plasmoid.configuration.kdeNotification;
+		noNotification = plasmoid.configuration.noNotification;
+		actionStartTimer = plasmoid.configuration.actionStartTimer;
+		actionStartBreak = plasmoid.configuration.actionStartBreak;
+		actionEndBreak = plasmoid.configuration.actionEndBreak;
+		actionEndCycle = plasmoid.configuration.actionEndCycle;
 		if(Logic.test){
-                        console.log(completeContinuousMode);
-                }
+			console.log(completeContinuousMode);
+		}
 	}
 
 	property Component compactRepresentation: Component {

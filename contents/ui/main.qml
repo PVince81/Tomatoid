@@ -46,7 +46,7 @@ Item {
 	property bool timerActive: inPomodoro || inBreak
 
 	property bool popupNotification: true
-	property bool kdeNotification: false
+	property bool kdeNotification: true
 	property bool noNotification: false
 
 	property int pomodoroLength: 25
@@ -76,7 +76,6 @@ Item {
 		//plasmoid.addEventListener("ConfigChanged", configChanged)
 		Logic.loadData();
 
-		plasmoid.setBackgroundHints(0);
 		tomatoid.forceActiveFocus();
 	}
 
@@ -245,20 +244,43 @@ Item {
 		volume: tickingVolume / 100 //volume from 0.1 to 1.0
 	}
 
+	PlasmaCore.DataSource {
+        id: notificationSource
+        engine: "notifications"
+        connectedSources: "org.freedesktop.Notifications"
+    }
+
+	function notify(summary, body) {
+	    console.log("showing notification: " + summary + " | " + body);
+
+	    var service = notificationSource.serviceForSource("notification");
+		var op = service.operationDescription("createNotification");
+		op["appName"] = tomatoid.appName;
+		op["appIcon"] = "chronometer"
+		op["summary"] = summary;
+		op["body"] = body;
+		op["timeout"] = 7000;
+
+		service.startOperationCall(op);
+
+		console.log(op)
+	}
+
+
 	//Actual timer. This will store the remaining seconds, total seconds and will return a timeout in the end.
 	property QtObject timer: TomatoidTimer {
 		id: timer
 
 		onTick: {
 			if(playTickingSound){
-                                if(inBreak){
-                                        if(playTickingSoundOnBreaks){
-                                                tickingSound.play();
-                                        }
-                                } else {
-                                        tickingSound.play();
-                                }
+                if(inBreak){
+                        if(playTickingSoundOnBreaks){
+                                tickingSound.play();
                         }
+                } else {
+                        tickingSound.play();
+                }
+            }
 		}
 		onTimeout: {
 			if(playNotificationSound)
@@ -274,19 +296,19 @@ Item {
 				Logic.startBreak()
 
 				if(kdeNotification)
-					Logic.notify(i18n("Pomodoro completed"), i18n("Great job! Now take a break and relax for a moment."));
+					notify(i18n("Pomodoro completed"), i18n("Great job! Now take a break and relax for a moment."));
 			} else if(inBreak) {
 				Logic.endBreak()
 				if(kdeNotification)
-					Logic.notify(i18n("Relax time is over"), i18n("Get back to work. Choose a task and start again."));
+					notify(i18n("Relax time is over"), i18n("Get back to work. Choose a task and start again."));
 				if(continuousMode){
-                                        if(completedPomodoros % pomodorosPerLongBreak == 0){ //if this is a long break
-                                                if(completeContinuousMode)
-                                                        Logic.startTask(timer.taskId, timer.taskName)
-                                        } else {
-                                                Logic.startTask(timer.taskId, timer.taskName)
-                                        }
-                                }
+                        if(completedPomodoros % pomodorosPerLongBreak == 0){ //if this is a long break
+                                if(completeContinuousMode)
+                                        Logic.startTask(timer.taskId, timer.taskName)
+                        } else {
+                                Logic.startTask(timer.taskId, timer.taskName)
+                        }
+                }
 			}
 		}
 	}

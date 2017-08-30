@@ -25,9 +25,9 @@
 Qt.include('../code/database.js');
 
 var test = true;
-var testPomodoroDuration = 3;
-var testBreakDuration = 1;
-var testLongBreakDuration = 4;
+var testPomodoroDuration = 10;
+var testBreakDuration = 5;
+var testLongBreakDuration = 20;
 
 function loadData() {
 	Database.list(Database.STATE_INCOMPLETE, function(tasks) {
@@ -137,9 +137,9 @@ function startTask(id, taskName) {
 
 function startBreak() {
 	runCommand(tomatoid.actionStartBreak);
-	console.log(plasmoid.popupIcon)
+	console.log(plasmoid.popupIcon);
 
-	if(completedPomodoros % pomodorosPerLongBreak == 0) {
+	if(completedPomodoros % pomodorosPerLongBreak === 0) {
 		timer.totalSeconds = test ? testLongBreakDuration : longBreakLength * 60;
 	} else {
 		timer.totalSeconds = test ? testBreakDuration : shortBreakLength * 60;
@@ -152,7 +152,7 @@ function startBreak() {
 function endBreak() {
 	runCommand(tomatoid.actionEndBreak);
 
-	if(completedPomodoros % pomodorosPerLongBreak == 0) {
+	if(completedPomodoros % pomodorosPerLongBreak === 0) {
 		runCommand(tomatoid.actionEndCycle);
 	}
 
@@ -161,7 +161,7 @@ function endBreak() {
 
 
 function stop() {
-	console.log(plasmoid.popupIcon)
+	console.log(plasmoid.popupIcon);
 
 	timer.running = false;
 	inPomodoro = false;
@@ -181,22 +181,6 @@ function completePomodoro(taskId) {
 	Database.update(taskId, estimate, donePomos, function() {
 		incompleteTasks.setProperty(index, "donePomos", donePomos)
 	});
-}
-
-
-function notify(summary, body) {
-	var engine = dataEngine("notifications");
-	var service = engine.serviceForSource("notification");
-	var op = service.operationDescription("createNotification");
-	op["appName"] = tomatoid.appName;
-	op["appIcon"] = "chronometer"
-	op["summary"] = summary;
-	op["body"] = body;
-	op["timeout"] = 7000;
-
-	service.startOperationCall(op);
-
-	console.log(op)
 }
 
 

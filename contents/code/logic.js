@@ -24,7 +24,7 @@
 
 Qt.include('../code/database.js');
 
-var test = false;
+var test = true;
 var testPomodoroDuration = 3;
 var testBreakDuration = 1;
 var testLongBreakDuration = 4;
@@ -47,16 +47,27 @@ function loadData() {
 }
 
 function newTask(taskName, estimatedPomos) {
+    var id = randomId();
 	var task = {
+		"taskId": id,
 		"taskName": taskName,
 		"donePomos": 0,
 		"estimatedPomos": estimatedPomos
 	};
-
-	Database.addTask(task.taskName, task.estimatedPomos, task.donePomos, Database.STATE_INCOMPLETE, function(id) {
-		task.taskId = id;
+    Database.addTask(id, task.taskName, task.estimatedPomos, task.donePomos, Database.STATE_INCOMPLETE, function() {
 		incompleteTasks.append(task);
 	});
+}
+
+function randomId() {
+    function s4() {
+        return Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+    }
+
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+        s4() + '-' + s4() + s4() + s4();
 }
 
 function removeTask(id, model) {
@@ -86,11 +97,17 @@ function renameTask(id, taskName) {
 
 
 function doTask(id) {
-	Database.changeState(id, Database.STATE_COMPLETE);
+	Database.changeState(id, Database.STATE_COMPLETE, function(task) {
+		completeTasks.append(task);
+		incompleteTasks.remove(task);
+	});
 }
 
 function undoTask(id) {
-	Database.changeState(id, Database.STATE_INCOMPLETE);
+	Database.changeState(id, Database.STATE_INCOMPLETE, function(task) {
+		incompleteTasks.append(task);
+		completeTasks.remove(task);
+	});
 }
 
 function runCommand(command) {

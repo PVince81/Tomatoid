@@ -173,7 +173,7 @@ Item {
 			done: false
 
 			onDoTask: Logic.doTask(taskIdentity)
-			onRemoveTask: Logic.removeTask(taskIdentity)
+			onRemoveTask: Logic.removeTask(taskIdentity, incompleteTasks)
 			onStartTask: Logic.startTask(taskIdentity, taskName)
 			onRenameTask: Logic.renameTask(taskIdentity, newName)
 		}
@@ -185,7 +185,7 @@ Item {
 			done: true
 
 			onDoTask: Logic.undoTask(taskIdentity)
-			onRemoveTask: Logic.removeTask(taskIdentity)
+			onRemoveTask: Logic.removeTask(taskIdentity, completeTasks)
 		}
 	}
 

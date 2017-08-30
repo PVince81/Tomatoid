@@ -3,3 +3,4 @@
 .plasmateprojectrc
 *.qmlc
 *.jsc
+.idea

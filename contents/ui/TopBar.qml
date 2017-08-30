@@ -112,7 +112,7 @@ PlasmaComponents.ToolBarLayout {
 
 	function add() {
 		if(taskField.text != "") {
-			Logic.newTask(taskField.text, estimatedPomosField.text == "" ? 0 : estimatedPomosField.text)
+			Logic.newTask(taskField.text, estimatedPomosField.text == "" ? 0 : parseInt(estimatedPomosField.text))
 			taskField.text = ""
 			estimatedPomosField.text = ""
 		}

@@ -48,17 +48,15 @@ var Database = {
 	 * @param {int} complete complete
 	 * @param {int} state 0 incomplete, 1 complete
 	 */
-	addTask: function(taskName, estimate, complete, state, callback) {
-		var rowId = null;
+	addTask: function(id, taskName, estimate, complete, state, callback) {
 		this.getDb().transaction(
 			function(tx) {
 				tx.executeSql(
-					'INSERT INTO tasks (name, estimate, complete, state) VALUES(?, ?, ?, ?)',
-					[ taskName, estimate || 0, complete || 0, state]
+					'INSERT INTO tasks (id, name, estimate, complete, state) VALUES(?, ?, ?, ?, ?)',
+					[id, taskName, estimate || 0, complete || 0, state]
 				);
-				var result = tx.executeSql('SELECT last_insert_rowid()');
 				if (typeof(callback) === 'function') {
-					callback(result.insertId);
+					callback();
 				}
 			}
 		);
@@ -67,7 +65,8 @@ var Database = {
 	removeTask: function(taskId, callback) {
 		this.getDb().transaction(
 			function(tx) {
-				tx.executeSql('DELETE FROM tasks WHERE rowid=?', [taskId]);
+				console.log("remove: " + taskId);
+				tx.executeSql('DELETE FROM tasks WHERE id=?', [taskId]);
 				if (typeof(callback) === 'function') {
 					callback();
 				}
@@ -79,11 +78,11 @@ var Database = {
 		this.getDb().transaction(
 			function(tx) {
 				var tasks = [];
-				var results = tx.executeSql('SELECT * FROM tasks WHERE state=? ORDER BY rowid ASC', [state]);
+				var results = tx.executeSql('SELECT * FROM tasks WHERE state=? ORDER BY id ASC', [state]);
 				for (var i = 0; i < results.rows.length; i++) {
 					var row = results.rows[i];
 					tasks.push({
-						taskId: row.rowid,
+						taskId: row.id,
 						taskName: row.name,
 						estimatedPomos: row.estimate,
 						donePomos: row.complete,
@@ -100,9 +99,19 @@ var Database = {
 	changeState: function(id, newState, callback) {
 		this.getDb().transaction(
 			function(tx) {
-				tx.executeSql('UPDATE tasks SET state=? WHERE rowid=?', [newState, id]);
-				if (typeof(callback) === 'function') {
-					callback();
+				console.log("change state of: " + id + " to " + newState);
+				tx.executeSql('UPDATE tasks SET state=? WHERE id=?', [newState, id]);
+				var result = tx.executeSql('SELECT * FROM tasks WHERE id=?', [id]);
+				if (typeof(callback) === 'function' && result && result.rows[0]) {
+					var row = result.rows[0];
+                    var task = {
+                        taskId: id,
+                        taskName: row.name,
+                        estimatedPomos: row.estimate,
+                        donePomos: row.complete
+                    };
+                    console.log(task);
+                    callback(task);
 				}
 			}
 		);
@@ -111,7 +120,7 @@ var Database = {
 	update: function(id, estimate, complete, callback) {
 		this.getDb().transaction(
 			function(tx) {
-				tx.executeSql('UPDATE tasks SET estimate=?, complete=? WHERE rowid=?', [estimate, complete, id]);
+				tx.executeSql('UPDATE tasks SET estimate=?, complete=? WHERE id=?', [estimate, complete, id]);
 				if (typeof(callback) === 'function') {
 					callback();
 				}
@@ -119,4 +128,3 @@ var Database = {
 		);
 	}
 };
-
